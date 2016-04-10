@@ -6,9 +6,15 @@ import os
 import pyaudio
 import pygit2
 import sys
+import termcolor
 
+# Constants
 RATE = 44100
 CHUNK = 1024
+
+# Redirect c-level stderr to avoid annoying PortAudio debugging info
+sys.stderr = os.fdopen(os.dup(2), 'w')
+os.dup2(os.open('/dev/null', 0), 2)
 
 audio = pyaudio.PyAudio()
 
@@ -21,15 +27,18 @@ stream = audio.open( format=pyaudio.paInt16
 
 repo = pygit2.Repository(pygit2.discover_repository(os.getcwd()))
 
+# Commit messages that start with PREFIX are interpreted as containing audio
 PREFIX = '(audio)'
 
+# Mimic git commit's output
 for commit in repo.walk(repo.head.target, pygit2.GIT_SORT_TOPOLOGICAL):
-    print('commit {}'.format(commit.oid))
+    print(termcolor.colored('commit {}'.format(commit.oid), 'yellow'))
     print('Author:\t{} <{}>'.format(commit.author.name, commit.author.email))
-    print('Date:\t{}'.format(datetime.datetime.fromtimestamp(commit.commit_time)))
+    print('Date:\t{}'.format(datetime.datetime.fromtimestamp(commit.commit_time).__format__('%a %b %d %X %Y %z')))
     print('')
     if commit.message.startswith(PREFIX):
-        sys.stdout.write('\t{}\n\n'.format(PREFIX))
+        print('\t{}'.format(PREFIX))
+        print('')
         stream.write(binascii.unhexlify(commit.message[len(PREFIX)+2:]))
     else:
         sys.stdout.write('\t')

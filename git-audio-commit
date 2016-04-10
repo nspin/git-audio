@@ -2,12 +2,18 @@
 
 import binascii
 import pyaudio
+import os
 import subprocess
 import sys
 import threading
 
+# Constants
 RATE = 44100
 CHUNK = 1024
+
+# Redirect c-level stderr to avoid annoying PortAudio debugging info
+sys.stderr = os.fdopen(os.dup(2), 'w')
+os.dup2(os.open('/dev/null', 0), 2)
  
 audio = pyaudio.PyAudio()
 
@@ -24,8 +30,10 @@ def set_on_input(e):
     raw_input()
     done.set()
 
+# Thread waits for line of keyboard input (<enter>)
 threading.Thread(target=set_on_input, args=(done,)).start()
 
+# Git will take audio data as commit message from stdin
 p = subprocess.Popen(['git', 'commit', '--cleanup=verbatim', '-F', '-'], stdin=subprocess.PIPE)
 
 sys.stderr.write('Press <enter> to stop recording\n')

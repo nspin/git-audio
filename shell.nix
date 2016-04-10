@@ -4,5 +4,6 @@ with import <nixpkgs> {}; stdenv.mkDerivation {
     python
     pythonPackages.pygit2
     pythonPackages.pyaudio
+    pythonPackages.termcolor
   ];
 }
