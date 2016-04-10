@@ -6,9 +6,6 @@ import subprocess
 import sys
 import threading
 
-err = sys.stderr
-sys.stderr = None
-
 RATE = 44100
 CHUNK = 1024
  
@@ -31,7 +28,7 @@ threading.Thread(target=set_on_input, args=(done,)).start()
 
 p = subprocess.Popen(['git', 'commit', '--cleanup=verbatim', '-F', '-'], stdin=subprocess.PIPE)
 
-err.write('Press <enter> to stop recording\n')
+sys.stderr.write('Press <enter> to stop recording\n')
 
 p.stdin.write('(audio)\n\n')
 while not done.is_set():

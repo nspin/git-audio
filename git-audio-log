@@ -7,8 +7,6 @@ import pyaudio
 import pygit2
 import sys
 
-sys.stderr = None
-
 RATE = 44100
 CHUNK = 1024
 
